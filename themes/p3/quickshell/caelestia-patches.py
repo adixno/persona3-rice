@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Punk-style edits to the user copy of Caelestia, applied by sync-caelestia.sh.
+"""Edits to the user copy of Caelestia for the Persona 3 theme, applied by sync-caelestia.sh.
+The launcher keeps the punk edits; the sidebar, utilities cards and notification popups are
+replaced by the p3 look near the end.
 
 Each edit must match exactly once; if Caelestia changes upstream the script
 stops with the file and anchor that failed instead of half-patching.
@@ -406,6 +408,165 @@ PATCHES.update({
             "panels.notifications.y + panels.notifications.height + borderThickness",
             "0",
             ALL,
+        ),
+    ],
+})
+
+# ---- p3 look: the sidebar (Super+A), its utilities cards and the notification popups ----
+# These replace the punk edits above for the same files: flat navy cards with a cyan accent
+# bar down the left edge, Jost lettering, no borders, stickers, halftone or ransom tiles.
+def accent(color: str = "Colours.palette.m3primary", to: str = "Colours.palette.m3primaryContainer") -> str:
+    return (
+        "    Rectangle {\n"
+        "        z: 4\n"
+        "        anchors.left: parent.left\n"
+        "        anchors.top: parent.top\n"
+        "        anchors.bottom: parent.bottom\n"
+        "        width: 4\n"
+        "        gradient: Gradient {\n"
+        f"            GradientStop {{ position: 0; color: {color} }}\n"
+        f"            GradientStop {{ position: 1; color: {to} }}\n"
+        "        }\n"
+        "    }\n"
+    )
+
+
+def jost(indent: int, size: int, weight: str = "Bold", italic: bool = False) -> str:
+    i = " " * indent
+    return f'font.family: "Jost"\n{i}font.weight: Font.{weight}\n{i}font.pixelSize: {size}\n' + (f"{i}font.italic: true\n" if italic else "")
+
+
+P3_CARD = (
+    "    radius: Tokens.rounding.large\n"
+    "    color: Colours.palette.m3surfaceContainer\n"
+    "\n" + accent()
+)
+
+PATCHES.update({
+    "modules/notifications/Notification.qml": [
+        (
+            "    Component.onDestruction: modelData.unlock(this)\n",
+            "    Component.onDestruction: modelData.unlock(this)\n"
+            "\n"
+            "    // p3: accent bar, red on urgent notifications\n"
+            + accent("root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3tertiary : Colours.palette.m3primary",
+                     "root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3tertiary : Colours.palette.m3primaryContainer"),
+        ),
+        (
+            "    color: root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3secondaryContainer : Colours.tPalette.m3surfaceContainer\n",
+            "    color: root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3secondaryContainer : Colours.palette.m3surfaceContainer\n",
+        ),
+        (
+            "            StyledText {\n                id: summary\n",
+            "            StyledText {\n                id: summary\n\n                " + jost(16, 16),
+        ),
+    ],
+    "modules/sidebar/Content.qml": [
+        (
+            # the p3-hud corner calendar sits over the top of the sidebar: start below it
+            "        anchors.fill: parent\n        spacing: Tokens.spacing.medium\n",
+            "        anchors.fill: parent\n        anchors.topMargin: 58\n        spacing: Tokens.spacing.medium\n",
+        ),
+        (
+            "            radius: Tokens.rounding.large\n            color: Colours.tPalette.m3surfaceContainerLow\n",
+            "            radius: Tokens.rounding.large\n            color: Colours.palette.m3surfaceContainerLow\n",
+        ),
+    ],
+    "modules/sidebar/NotifDock.qml": [
+        (
+            "            text: root.notifCount\n            color: Colours.palette.m3outline\n            font: Tokens.font.label.large\n",
+            "            text: root.notifCount\n"
+            "            color: Colours.palette.m3primary\n"
+            "            " + jost(12, 30, "Black", True),
+        ),
+        (
+            "            // TRANSLATORS: the count itself is rendered separately, immediately to the left\n"
+            "            text: root.notifCount > 0 ? Tr.trCtxN(\"notification\", \"notifications\", root.notifCount, \"notification count label, number shown separately\") : Tr.tr(\"Notifications\")\n"
+            "            color: Colours.palette.m3outline\n            font: Tokens.font.label.large\n            elide: Text.ElideRight\n",
+            "            text: root.notifCount === 1 ? \"Notification\" : root.notifCount > 0 ? \"Notifications\" : \"All quiet\"\n"
+            "            color: Colours.palette.m3onSurface\n"
+            "            " + jost(12, 22, "Black", True)
+            + "            elide: Text.ElideRight\n",
+        ),
+        (
+            """\
+                Image {
+                    asynchronous: true
+                    source: Paths.absolutePath(Config.paths.noNotifsPic)
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize.width: clipRect.width * 0.8 * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1)
+
+                    layer.enabled: true
+                    layer.effect: Colouriser {
+                        colorizationColor: Colours.palette.m3outlineVariant
+                        brightness: 1
+                    }
+                }
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: Tr.tr("All up to date!")
+                    color: Colours.palette.m3outlineVariant
+                    font: Tokens.font.headline.builders.small.width(90).build()
+                }
+""",
+            """\
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "bedtime"
+                    color: Colours.palette.m3outlineVariant
+                    font.family: "Material Symbols Rounded"
+                    font.pixelSize: 56
+                }
+""",
+        ),
+        (
+            # the dock is short on a small screen and the title already says it: icon only
+            "            sourceComponent: ColumnLayout {\n                spacing: Tokens.spacing.extraLarge\n",
+            "            sourceComponent: ColumnLayout {\n                spacing: Tokens.spacing.small\n",
+        ),
+    ],
+    "modules/sidebar/NotifGroup.qml": [
+        (
+            "    radius: Tokens.rounding.large\n    color: Colours.layer(Colours.palette.m3surfaceContainer, 2)\n",
+            "    radius: Tokens.rounding.large\n    color: Colours.palette.m3surfaceContainer\n\n" + accent(),
+        ),
+        (
+            "                    text: root.modelData\n                    color: Colours.palette.m3onSurfaceVariant\n                    font: Tokens.font.body.small\n",
+            "                    text: root.modelData\n                    color: Colours.palette.m3primary\n                    " + jost(20, 14),
+        ),
+    ],
+    "modules/sidebar/Notif.qml": [
+        (
+            "        id: summary\n",
+            "        id: summary\n\n        " + jost(8, 15, "DemiBold"),
+        ),
+    ],
+    "modules/utilities/cards/IdleInhibit.qml": [
+        (CARD_OLD, P3_CARD),
+        (
+            "                text: Tr.trCtx(\"Keep awake\", \"idle inhibitor\")\n                font: Tokens.font.body.medium\n",
+            "                text: Tr.trCtx(\"Keep awake\", \"idle inhibitor\")\n                " + jost(16, 17),
+        ),
+    ],
+    "modules/utilities/cards/Record.qml": [
+        (CARD_OLD, P3_CARD),
+        (
+            "                    text: Tr.tr(\"Screen recorder\")\n                    font: Tokens.font.body.medium\n",
+            "                    text: Tr.tr(\"Screen recorder\")\n                    " + jost(20, 17),
+        ),
+    ],
+    "modules/utilities/cards/RecordingList.qml": [
+        (
+            "                text: Tr.tr(\"Recordings\")\n                font: Tokens.font.body.medium\n",
+            "                text: Tr.tr(\"Recordings\")\n                " + jost(16, 16),
+        ),
+    ],
+    "modules/utilities/cards/Toggles.qml": [
+        (CARD_OLD, P3_CARD),
+        (
+            "            text: Tr.tr(\"Quick toggles\")\n            font: Tokens.font.body.medium\n",
+            "            text: Tr.tr(\"Quick toggles\")\n            " + jost(12, 17),
         ),
     ],
 })

@@ -131,6 +131,7 @@ Everything below is optional and lives in `~/.local/share/persona-rice/media/p3/
 | `skills-bg.png`, `skills-mask.png` | `p3-skills` | Backdrop + mask (`tools/make-mask.py`). |
 | `links-bg/00.png` … `19.png`, `offsets.json`, `mask.png` | `p3-links` | One frame per app; mask from `tools/make-mask.py`. |
 | `greeting-card.png` | terminal | `terminal/tools/make-pixel.py <image>` turns a card image into the pixel-art card embedded in `greeting.py`. The repo ships an original moon-over-water placeholder. |
+| `greeting-cards.json` | terminal | A deck: `terminal/tools/make-pixel.py --sheet <image>` cuts every card out of one sheet image (white or transparent background) and writes this file. With it, each new terminal draws a random card, never the same one twice in a row. |
 
 The mask tools contain hand-placed regions for the art they were written against, so expect to adjust them for different images. They need `numpy` and `pillow` (a venv is fine).
 

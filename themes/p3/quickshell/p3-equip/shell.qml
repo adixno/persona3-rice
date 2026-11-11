@@ -1,4 +1,4 @@
-// p3-equip: "loadout" screen for the Persona 3 theme.
+// p3-equip: "loadout" screen for the Persona 3 theme (local only).
 // Left: slot rows (Sound / Power / Display / Link / Focus). Middle: what each slot has
 // equipped (navy pill header + icon chip + item). ↵ on an item opens the options to equip,
 // with an RPG-style stat comparison; ↵ again equips it (equip.py does the real work:
@@ -245,6 +245,10 @@ ShellRoot {
                         { v: "off", label: "Off", icon: "wifi_off", stats: [], cur: !t.wifiOn },
                         { v: "on", label: "On", icon: "wifi", stats: [], cur: !!t.wifiOn && !t.wifi }
                       ].concat((t.saved ?? []).map(n => ({ v: n, label: n, icon: "wifi", stats: [], cur: !!t.wifiOn && t.wifi === n }))) },
+                    { key: "hotspot", name: "Hotspot", icon: "wifi_tethering", options: [
+                        { v: "off", label: "Off", icon: "wifi_tethering_off", stats: [], cur: !t.hotspotOn },
+                        { v: "on", label: t.hotspot ? "On · " + t.hotspot : "On", icon: "wifi_tethering", stats: [], cur: !!t.hotspotOn }
+                      ] },
                     { key: "bluetooth", name: "Bluetooth", icon: "bluetooth", options: [
                         { v: "off", label: "Off", icon: "bluetooth_disabled", stats: [], cur: !t.btOn },
                         { v: "on", label: "On", icon: "bluetooth", stats: [], cur: !!t.btOn && !(t.devices ?? []).some(d => d.connected) }
@@ -325,6 +329,7 @@ ShellRoot {
                 case "brightness": t.brightness = parseInt(v); break;
                 case "nightlight": t.temperature = v === "off" ? 6500 : v === "auto" ? 4200 : parseInt(v); break;
                 case "wifi": t.wifiOn = v !== "off"; if (v !== "on" && v !== "off") t.wifi = v; break;
+                case "hotspot": t.hotspotOn = v === "on"; if (v === "on") { t.wifiOn = true; t.wifi = ""; } break;
                 case "bluetooth": t.btOn = v !== "off"; break;
                 case "dnd": t.dnd = v === "on"; break;
                 case "awake": t.awake = v === "on"; break;

@@ -5,7 +5,7 @@
   equip.py apply KEY VALUE -> equip VALUE in slot KEY (prints "ok" / "error: ...")
 
 Slots (KEY): output, volume, input, profile, gamemode, brightness, nightlight,
-             wifi, bluetooth, dnd, awake
+             wifi, hotspot, bluetooth, dnd, awake
 """
 import json, os, subprocess, sys, glob
 from concurrent.futures import ThreadPoolExecutor
@@ -80,15 +80,36 @@ def display():
     return {"brightness": b, "temperature": temp, "sunset": bool(run("pgrep", "-x", "hyprsunset"))}
 
 
+def hotspots(names=None):
+    """Saved Wi-Fi profiles in access-point mode (one nmcli call for all of them)."""
+    if names is None:
+        names = []
+        for l in run("nmcli", "-t", "-f", "NAME,TYPE", "connection", "show").splitlines():
+            n, _, t = l.rpartition(":")
+            if t == "802-11-wireless":
+                names.append(n.replace("\\:", ":"))
+    if not names:
+        return []
+    modes = [m for m in run("nmcli", "-g", "802-11-wireless.mode", "connection", "show", *names).splitlines() if m]
+    if len(modes) != len(names):
+        return []
+    return [n for n, m in zip(names, modes) if m == "ap"]
+
+
 def link():
     radio = run("nmcli", "radio", "wifi") == "enabled"
-    saved, current = [], ""
+    saved, current, active = [], "", set()
     for l in run("nmcli", "-t", "-f", "NAME,TYPE,DEVICE", "connection", "show").splitlines():
         parts = l.rsplit(":", 2)
         if len(parts) == 3 and parts[1] == "802-11-wireless":
             saved.append(parts[0].replace("\\:", ":"))
             if parts[2]:
-                current = parts[0].replace("\\:", ":")
+                active.add(saved[-1])
+    # access-point profiles are the hotspot, not networks to join
+    aps = hotspots(saved)
+    saved = [n for n in saved if n not in aps]
+    current = next((n for n in saved if n in active), "")
+    hotspot = aps[0] if aps else ""
     bt_on = "Powered: yes" in run("bluetoothctl", "show")
     devs = []
     for l in run("bluetoothctl", "devices", "Paired").splitlines():
@@ -100,7 +121,8 @@ def link():
                 if "Battery Percentage" in x:
                     batt = x.split("(")[-1].rstrip(")")
             devs.append({"id": p[1], "label": p[2], "connected": "Connected: yes" in info, "battery": batt})
-    return {"wifiOn": radio, "wifi": current, "saved": saved, "btOn": bt_on, "devices": devs}
+    return {"wifiOn": radio, "wifi": current, "saved": saved, "btOn": bt_on, "devices": devs,
+            "hotspot": hotspot, "hotspotOn": any(n in active for n in aps)}
 
 
 MOTION = os.path.expanduser("~/.local/state/p3-motion.json")
@@ -183,6 +205,18 @@ def apply(key, val):
             run("nmcli", "radio", "wifi", "on")
             if val != "on":
                 spawn("nmcli", "connection", "up", "id", val)
+    elif key == "hotspot":
+        aps = hotspots()
+        if val == "off":
+            for n in aps:
+                run("nmcli", "connection", "down", "id", n)
+        else:
+            run("nmcli", "radio", "wifi", "on")
+            if aps:
+                spawn("nmcli", "connection", "up", "id", aps[0])
+            else:
+                # no saved access point yet: NetworkManager makes one called "Hotspot"
+                spawn("nmcli", "device", "wifi", "hotspot")
     elif key == "bluetooth":
         if val == "off":
             run("bluetoothctl", "power", "off")

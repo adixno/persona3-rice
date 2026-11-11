@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Persona 3 theme greeting: a tarot-style card as pixel art (CARD below: a placeholder
 moon-over-water card; tools/make-pixel.py embeds your own card image instead). It flips in from its back, then a holographic sheen
-sweeps across it now and then and the frame glints, next to fastfetch output, until the shell
+sweeps across it now and then, next to fastfetch output, until the shell
 stops it (see the fish greeting hook). Half-block pixels: W x 2H.
 `python3 persona.py --still` prints one frame (for previewing)."""
 import functools, json, math, os, random, re, subprocess, sys, time
@@ -168,17 +168,6 @@ def front(t):
                     k = (1 - abs(d) / 5) * 0.55
                     tint = mix(ICE, (255, 170, 230), (y - CY0) / (CY1 - CY0))
                     px[(x, y)] = mix(c, tint, k)
-    # a glint running round the frame
-    per = 2 * ((CX1 - CX0) + (CY1 - CY0))
-    g = (t * 18) % per
-    for k in range(4):
-        q = (g - k) % per
-        w, h = CX1 - CX0, CY1 - CY0
-        if q < w: x, y = CX0 + q, CY0
-        elif q < w + h: x, y = CX1, CY0 + q - w
-        elif q < 2 * w + h: x, y = CX1 - (q - w - h), CY1
-        else: x, y = CX0, CY1 - (q - 2 * w - h)
-        px[(int(x), int(y))] = mix(WHITE, CYAN, k / 4)
     return px
 
 def canvas(t=0.0):

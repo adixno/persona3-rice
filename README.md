@@ -7,6 +7,24 @@ Built on **Hyprland (Lua config) + [Caelestia shell](https://github.com/caelesti
 > Fan-made and unofficial. Not affiliated with or endorsed by Atlus or SEGA.
 > **This repo contains code only.** All layouts, shaders, widgets and the two bundled wallpapers are original. It ships no game art, video or music. The menus have *media slots* for backdrops, which you fill with your own files (see [Media slots](#media-slots)).
 
+![desktop](preview/desktop.jpg)
+
+| Daily status `SUPER+I` | Loadout `SUPER+G` |
+|---|---|
+| ![status](preview/status.jpg) | ![loadout](preview/equip.jpg) |
+| **Loadout: a slot's gear** | **Toolkit `SUPER+U`** |
+| ![loadout options](preview/equip-options.jpg) | ![toolkit](preview/items.jpg) |
+| **Modes `SUPER+K`** | **Launcher `SUPER+Space`** |
+| ![modes](preview/skills.jpg) | ![launcher](preview/links.jpg) |
+| **Power menu `SUPER+SHIFT+Escape`** | **Dark Hour** |
+| ![power](preview/power.jpg) | ![dark hour](preview/darkhour.jpg) |
+| **Lock screen** | **Login screen (SDDM)** |
+| ![lock](preview/lock.jpg) | ![login](preview/login.jpg) |
+
+![terminal](preview/terminal.jpg)
+
+Every screenshot was taken with the media slots empty and the bundled `p3-depths.png` wallpaper, so this is what a fresh install looks like. Backdrops you add fill the open space in each menu.
+
 ## What's inside
 
 | Piece | Key | What it is |

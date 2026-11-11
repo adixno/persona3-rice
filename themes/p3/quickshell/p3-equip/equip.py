@@ -211,12 +211,15 @@ def apply(key, val):
             for n in aps:
                 run("nmcli", "connection", "down", "id", n)
         else:
-            run("nmcli", "radio", "wifi", "on")
+            if run("nmcli", "radio", "wifi") != "enabled":
+                run("nmcli", "radio", "wifi", "on")
+            # wait for it to come up (about 1.5 s) so the menu's refresh right after this
+            # returns already sees it on, instead of showing Off until the late refresh
             if aps:
-                spawn("nmcli", "connection", "up", "id", aps[0])
+                run("nmcli", "--wait", "8", "connection", "up", "id", aps[0], timeout=10)
             else:
                 # no saved access point yet: NetworkManager makes one called "Hotspot"
-                spawn("nmcli", "device", "wifi", "hotspot")
+                run("nmcli", "--wait", "10", "device", "wifi", "hotspot", timeout=12)
     elif key == "bluetooth":
         if val == "off":
             run("bluetoothctl", "power", "off")

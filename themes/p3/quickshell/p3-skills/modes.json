@@ -1,0 +1,24 @@
+{
+  "_help": "p3-skills modes. Copy to ~/.config/p3-skills/modes.json to customise. Keys in 'set' are p3-equip slots: profile (power-saver|balanced|performance), gamemode (on|off), dnd (on|off), awake (on|off), brightness (0-100), volume (0-100|mute), nightlight (auto|off|4500|3500|2700), bluetooth (on|off|MAC), wifi (on|off|name). 'cost' is the SP shown (negative = restores). 'open' is an optional command run after casting.",
+  "modes": [
+    { "id": "study", "name": "Study", "icon": "menu_book", "color": "#3fd8ff", "cost": 3,
+      "desc": "Quiet, awake and focused for notes and PDFs.",
+      "set": { "profile": "balanced", "dnd": "on", "awake": "on", "volume": "30", "gamemode": "off" },
+      "open": "xdg-open \"$HOME/Downloads\"" },
+    { "id": "gaming", "name": "Gaming", "icon": "sports_esports", "color": "#ff3d5a", "cost": 12,
+      "desc": "Everything into frames: full power, no interruptions.",
+      "set": { "profile": "performance", "gamemode": "on", "dnd": "on", "brightness": "100", "awake": "on" } },
+    { "id": "movie", "name": "Movie Night", "icon": "movie", "color": "#ffd23f", "cost": 6,
+      "desc": "Bright, loud enough, true colours, screen stays on.",
+      "set": { "brightness": "100", "volume": "75", "awake": "on", "nightlight": "off", "dnd": "on" } },
+    { "id": "nightowl", "name": "Night Owl", "icon": "nightlight", "color": "#b06bff", "cost": 2,
+      "desc": "Warm, dim and quiet for late hours.",
+      "set": { "nightlight": "3500", "brightness": "30", "volume": "25" } },
+    { "id": "conserve", "name": "Conserve", "icon": "eco", "color": "#3dff8a", "cost": -8,
+      "desc": "Stretch the battery: low power, dim, Bluetooth off.",
+      "set": { "profile": "power-saver", "brightness": "40", "bluetooth": "off", "gamemode": "off", "awake": "off" } },
+    { "id": "everyday", "name": "Everyday", "icon": "wb_sunny", "color": "#f2fbff", "cost": 0,
+      "desc": "Back to normal: balanced, notifications on, night light on schedule.",
+      "set": { "profile": "balanced", "gamemode": "off", "dnd": "off", "awake": "off", "brightness": "75", "volume": "50", "nightlight": "auto" } }
+  ]
+}

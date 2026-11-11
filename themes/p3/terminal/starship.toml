@@ -1,0 +1,80 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+# Persona 3 prompt: navy text on cyan slanted labels, ice-white folder, red highlight.
+# Palette keys keep the p5 names so the layout below is shared: red = main accent (cyan here).
+add_newline = true
+palette = "persona"
+
+format = """
+[](fg:red)$os$username$hostname[](fg:red bg:paper)$directory[](fg:paper) $git_branch$git_status$python$nodejs$rust$golang$cmd_duration
+$character"""
+
+[palettes.persona]
+red   = "#3fd8ff"
+deep  = "#1238d6"
+ink   = "#030a26"
+paper = "#f2fbff"
+dim   = "#8fb3d9"
+gold  = "#ff1f3a"
+
+[os]
+disabled = false
+format = "[ $symbol]($style)"
+style = "bold fg:ink bg:red"
+[os.symbols]
+Arch = "󰣇"
+CachyOS = "󰣇"
+Linux = ""
+
+[username]
+show_always = true
+style_user = "bold fg:ink bg:red"
+style_root = "bold fg:gold bg:red"
+format = "[ $user]($style)"
+
+[hostname]
+ssh_only = false
+style = "fg:ink bg:red"
+format = "[@$hostname ]($style)"
+
+[directory]
+style = "bold fg:ink bg:paper"
+format = "[ $path]($style)[$read_only]($style)[ ](bg:paper)"
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " 󰌾"
+
+[git_branch]
+symbol = " "
+style = "bold fg:red"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "bold fg:paper"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+[cmd_duration]
+min_time = 2000
+style = "bold fg:gold"
+format = "[ 󱐋 $duration]($style)"
+
+[character]
+success_symbol = "[▶](bold fg:red)[▶](bold fg:gold)"
+error_symbol   = "[✖](bold fg:gold)[▶](bold fg:red)"
+vimcmd_symbol  = "[◀◀](bold fg:paper)"
+
+[python]
+symbol = " "
+style = "fg:paper"
+format = '[$symbol$version]($style) '
+[nodejs]
+symbol = " "
+style = "fg:paper"
+format = '[$symbol$version]($style) '
+[rust]
+symbol = " "
+style = "fg:paper"
+format = '[$symbol$version]($style) '
+[golang]
+symbol = " "
+style = "fg:paper"
+format = '[$symbol$version]($style) '

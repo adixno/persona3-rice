@@ -1,0 +1,6 @@
+__pycache__/
+*.bak*
+themes/*/sddm/background.png
+# your own art and videos (see README: Media slots)
+media/p3/*
+!media/p3/.gitkeep

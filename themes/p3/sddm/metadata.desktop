@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=Persona 3
+Description=Moonlit title-screen style login: outlined clock wordmark, right-aligned menu with a blue band
+Author=adi
+Version=1.0
+Type=sddm-theme
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=persona-p3
+Theme-API=2.0
+QtVersion=6

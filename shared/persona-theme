@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# Switch the whole rice between themes.
+#   persona-theme              list themes (* = active)
+#   persona-theme <id>         apply a theme: terminal, Caelestia, bar, lock screen, Hyprland look,
+#                              wallpaper and (if set up with sddm-install.sh) the login screen
+#   persona-theme <id> --terminal   only the terminal parts
+# Themes live in ~/.local/share/persona-rice/themes/<id>/ (copied there by install.sh).
+# Files a theme owns are overwritten on every switch; install.sh made the one-time backups.
+set -euo pipefail
+
+cfg=${XDG_CONFIG_HOME:-$HOME/.config}
+share=${XDG_DATA_HOME:-$HOME/.local/share}/persona-rice
+state=${XDG_STATE_HOME:-$HOME/.local/state}/persona-theme
+themes=$share/themes
+mkdir -p "$state"
+active=$(cat "$state/current" 2>/dev/null || true)
+
+say() { printf '\e[1;37;41m P \e[0m %s\n' "$*"; }
+warn() { printf '\e[1;30;47m ! \e[0m %s\n' "$*" >&2; }
+
+list() {
+    for d in "$themes"/*/; do
+        [[ -f $d/theme.sh ]] || continue
+        id=$(basename "$d")
+        (
+            source "$d/theme.sh"
+            printf '%s %-6s %-12s %s\n' "$([[ $id == "$active" ]] && echo '*' || echo ' ')" "$id" "$NAME" "$DESC"
+        )
+    done
+}
+
+# replace dst with src (file or directory)
+put() {
+    local src=$1 dst=$2
+    [[ -e $src ]] || return 0
+    mkdir -p "$(dirname "$dst")"
+    rm -rf "$dst"
+    cp -a "$src" "$dst"
+}
+
+[[ $# -eq 0 ]] && { list; exit 0; }
+id=$1
+only_terminal=0
+[[ ${2:-} == --terminal ]] && only_terminal=1
+t=$themes/$id
+[[ $id =~ ^[a-z0-9-]+$ && -f $t/theme.sh ]] || { warn "no theme '$id'"; list; exit 1; }
+NAME= SCHEME= WALLPAPER= AUTOSTART=
+source "$t/theme.sh"
+
+# ── terminal ─────────────────────────────────────────────────────────────────
+say "$NAME: terminal"
+put "$t/terminal/greeting.py" "$cfg/fastfetch/persona.py"
+put "$t/terminal/fastfetch.jsonc" "$cfg/fastfetch/persona.jsonc"
+put "$t/terminal/colors.fish" "$cfg/fish/conf.d/persona-colors.fish"
+put "$t/terminal/starship.toml" "$cfg/starship.toml"
+put "$t/terminal/kitty.conf" "$cfg/kitty/themes/persona.conf"
+pkill -USR1 -x kitty 2>/dev/null || true
+
+if ((only_terminal)); then
+    echo "$id" >"$state/current"
+    say "done (terminal only). open a new terminal."
+    exit 0
+fi
+
+# remember the wallpaper the outgoing theme was using, so switching back restores it
+wall_state=${XDG_STATE_HOME:-$HOME/.local/state}/caelestia/wallpaper/path.txt
+if [[ -n $active && -f $wall_state ]]; then
+    cp "$wall_state" "$state/$active.wallpaper"
+fi
+
+# ── caelestia config ─────────────────────────────────────────────────────────
+say "$NAME: caelestia"
+put "$t/caelestia/shell-tokens.json" "$cfg/caelestia/shell-tokens.json"
+put "$t/caelestia/scheme.py" "$cfg/caelestia/persona-scheme.py"
+put "$t/caelestia/scheme.txt" "$cfg/caelestia/persona-dark.txt"
+if [[ -f $t/caelestia/shell.json ]]; then
+    # theme settings win, everything else in the user's shell.json is kept,
+    # and Caelestia's own bar stays hidden (persona-bar replaces it)
+    mons=$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; print(json.dumps([m["name"] for m in json.load(sys.stdin)]))' 2>/dev/null || echo '[]')
+    tmp=$(mktemp)
+    python3 - "$t/caelestia/shell.json" "$cfg/caelestia/shell.json" "$mons" >"$tmp" <<'EOF'
+import json, os, sys
+
+def merge(base, extra):
+    for k, v in extra.items():
+        base[k] = merge(base.get(k, {}), v) if isinstance(v, dict) and isinstance(base.get(k), dict) else v
+    return base
+
+ours = json.load(open(sys.argv[1]))
+theirs = json.load(open(sys.argv[2])) if os.path.exists(sys.argv[2]) else {}
+d = merge(theirs, ours)
+mons = json.loads(sys.argv[3])
+if mons:
+    d.setdefault("bar", {})["excludedScreens"] = mons
+print(json.dumps(d, indent=2))
+EOF
+    mkdir -p "$cfg/caelestia"
+    mv "$tmp" "$cfg/caelestia/shell.json"
+fi
+
+# ── quickshell: bar + patched caelestia ──────────────────────────────────────
+say "$NAME: bar + lock screen"
+put "$t/quickshell/persona-bar" "$cfg/quickshell/persona-bar"
+put "$t/quickshell/caelestia-overlay" "$cfg/quickshell/caelestia-overlay"
+put "$t/quickshell/caelestia-patches.py" "$cfg/quickshell/caelestia-patches.py"
+for extra in "$t"/quickshell/*/; do
+    name=$(basename "$extra")
+    case $name in persona-bar | caelestia-overlay) continue ;; esac
+    put "$extra" "$cfg/quickshell/$name"
+done
+"$cfg/quickshell/sync-caelestia.sh" ||
+    warn "Caelestia patches didn't apply; it will run unpatched"
+
+# ── hyprland window look ─────────────────────────────────────────────────────
+say "$NAME: hyprland look"
+if [[ -f $cfg/hypr/hyprland.lua ]]; then
+    put "$t/hypr/look.lua" "$cfg/hypr/config/persona_theme.lua"
+    if ! grep -q 'require("config.persona_theme")' "$cfg/hypr/hyprland.lua"; then
+        cp "$cfg/hypr/hyprland.lua" "$cfg/hypr/hyprland.lua.bak-persona-theme"
+        printf '\n-- persona-rice theme look (managed by persona-theme; keep it last)\nrequire("config.persona_theme")\n' >>"$cfg/hypr/hyprland.lua"
+    fi
+else
+    put "$t/hypr/look.conf" "$cfg/hypr/persona-theme.conf"
+    grep -qs 'persona-theme.conf' "$cfg/hypr/hyprland.conf" ||
+        warn "add 'source = ~/.config/hypr/persona-theme.conf' to the end of hyprland.conf"
+fi
+hyprctl reload >/dev/null 2>&1 || true
+
+# ── wallpaper + scheme (wallpaper first: it can regenerate the scheme) ────────
+say "$NAME: wallpaper"
+walls="$HOME/Pictures/Wallpapers"
+mkdir -p "$walls"
+[[ -d $t/wallpapers ]] && cp --update=none "$t"/wallpapers/* "$walls/" 2>/dev/null
+wall=$(cat "$state/$id.wallpaper" 2>/dev/null || true)
+[[ -n $wall && -f $wall ]] || wall=$walls/$WALLPAPER
+if [[ -f $wall ]]; then
+    caelestia wallpaper -f "$wall" -N >/dev/null || warn "could not set wallpaper"
+fi
+[[ -n $SCHEME ]] && caelestia scheme set -n "$SCHEME" 2>/dev/null || true
+[[ -f $cfg/caelestia/persona-scheme.py ]] && python3 "$cfg/caelestia/persona-scheme.py"
+
+# ── login screen ─────────────────────────────────────────────────────────────
+if [[ -x /usr/local/bin/persona-sddm-theme ]]; then
+    if [[ -d /usr/share/sddm/themes/persona-$id ]]; then
+        sudo -n /usr/local/bin/persona-sddm-theme "persona-$id" ||
+            warn "could not switch the login screen (re-run sudo ./sddm-install.sh)"
+    else
+        warn "no login screen for $id installed; re-run sudo ./sddm-install.sh"
+    fi
+fi
+
+echo "$id" >"$state/current"
+
+# ── restart shells ───────────────────────────────────────────────────────────
+say "$NAME: restarting shells"
+caelestia shell -k >/dev/null 2>&1 || true
+pkill -f '^qs -c persona-bar' 2>/dev/null || true
+pkill -f '^qs -c p[0-9]+-' 2>/dev/null || true   # previous theme's own extras (p3-hud, ...)
+sleep 1
+caelestia shell -d >/dev/null 2>&1
+qs -c persona-bar -n -d >/dev/null 2>&1
+for cmd in "${AUTOSTART[@]}"; do
+    setsid -f sh -c "$cmd" >/dev/null 2>&1
+done
+say "switched to $NAME. new terminals pick up the prompt and greeting."

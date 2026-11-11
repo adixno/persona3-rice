@@ -1,0 +1,102 @@
+{
+  "appearance": {
+    "rounding": {
+      "scale": 0
+    },
+    "padding": {
+      "scale": 0.9
+    },
+    "transparency": {
+      "enabled": false
+    },
+    "anim": {
+      "durations": {
+        "scale": 0.7
+      }
+    },
+    "font": {
+      "headline": {
+        "family": "Bebas Neue",
+        "large": {
+          "weight": 400,
+          "italic": true,
+          "vaxes": {}
+        },
+        "medium": {
+          "weight": 400,
+          "italic": true,
+          "vaxes": {}
+        },
+        "small": {
+          "weight": 400,
+          "italic": true,
+          "vaxes": {}
+        }
+      },
+      "title": {
+        "family": "Antonio",
+        "large": {
+          "weight": 700,
+          "italic": true,
+          "vaxes": {}
+        },
+        "medium": {
+          "weight": 700,
+          "italic": true,
+          "vaxes": {}
+        },
+        "small": {
+          "weight": 700,
+          "italic": true,
+          "vaxes": {}
+        }
+      },
+      "label": {
+        "family": "Antonio",
+        "large": {
+          "weight": 700,
+          "vaxes": {}
+        },
+        "medium": {
+          "weight": 600,
+          "vaxes": {}
+        },
+        "small": {
+          "weight": 600,
+          "vaxes": {}
+        }
+      },
+      "body": {
+        "family": "Noto Sans",
+        "large": {
+          "vaxes": {}
+        },
+        "medium": {
+          "vaxes": {}
+        },
+        "small": {
+          "vaxes": {}
+        }
+      },
+      "icon": {
+        "family": "Material Symbols Sharp"
+      },
+      "clock": "Bebas Neue"
+    }
+  },
+  "border": {
+    "thickness": 0,
+    "rounding": 0,
+    "smoothing": 0
+  },
+  "bar": {
+    "workspaces": {
+      "activeTrail": true,
+      "occupiedBg": true
+    },
+    "excludedScreens": []
+  },
+  "background": {
+    "wallpaperEnabled": false
+  }
+}

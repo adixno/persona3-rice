@@ -40,7 +40,7 @@ ShellRoot {
     readonly property string icons: "Material Symbols Sharp"
 
     readonly property int barHeight: 44 // reserved space; sync-caelestia.sh reads this
-    readonly property int hudWidth: 440 // p3-hud corner calendar sits over the right end of the bar
+    readonly property int hudWidth: 352 // 440 * p3-hud hudScale (0.8): p3-hud corner calendar sits over the right end of the bar
 
     function caelestia(args: list<string>): void {
         Quickshell.execDetached(["caelestia", ...args]);
@@ -255,10 +255,12 @@ ShellRoot {
                     }
                 }
 
-                // right (left of the corner calendar): tray, status pills, power
+                // middle of the screen: tray, status pills, power. Centred on the bar, pushed
+                // left only if it would otherwise run under the corner calendar
                 RowLayout {
                     id: rightRow
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 12 + root.hudWidth }
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: Math.round(Math.min((parent.width - width) / 2, parent.width - 12 - root.hudWidth - width))
                     spacing: 8
 
                     // drop pill labels (bluetooth, then wifi, then volume) when space runs out

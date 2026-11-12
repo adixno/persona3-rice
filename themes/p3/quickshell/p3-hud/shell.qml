@@ -45,6 +45,9 @@ ShellRoot {
     readonly property color red: "#ff2a3a"
     readonly property color gold: "#ffe600"
     readonly property string face: "Jost"
+    // overall size: everything is laid out at 440x150 and scaled from the top-right corner.
+    // persona-bar's hudWidth must be 440 * this
+    readonly property real hudScale: 0.8
 
     // global cursor position, polled ~8 times a second (4 on battery) by one long-running
     // helper that talks to Hyprland's socket directly and only prints when it changes
@@ -94,8 +97,8 @@ ShellRoot {
             screen: modelData
 
             anchors { top: true; right: true }
-            implicitWidth: 440
-            implicitHeight: 150   // 118 of layout + room for the waves' fade-out
+            implicitWidth: Math.round(440 * root.hudScale)
+            implicitHeight: Math.round(150 * root.hudScale)   // 118 of layout + room for the waves' fade-out (before scaling)
             exclusionMode: ExclusionMode.Ignore
             color: "transparent"
             // Overlay layer so Caelestia's frame (Top layer) can never end up above it,
@@ -113,7 +116,12 @@ ShellRoot {
 
             Item {
                 id: cal
-                anchors.fill: parent
+                anchors.top: parent.top
+                anchors.right: parent.right
+                width: 440
+                height: 150
+                scale: root.hudScale
+                transformOrigin: Item.TopRight
                 opacity: win.hovered ? 0.12 : 1
                 Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
                 readonly property real pw: width

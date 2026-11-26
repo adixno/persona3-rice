@@ -38,6 +38,7 @@ Every screenshot was taken with the media slots empty and the bundled `p3-depths
 | `p3-items` | `SUPER+U` | Toolkit in four pouches: Screen (screenshots, recordings), Clipboard, Storage (trash, caches, disk survey), System (timers, calculator, reload, lock, suspend). Destructive tools ask twice. |
 | `p3-skills` | `SUPER+K` | Modes: a mode is a bundle of loadout settings (Study, Gaming, Movie Night, Night Owl, Conserve, Everyday). Shows the cost and what changes before you cast it. Override with `~/.config/p3-skills/modes.json`. |
 | `p3-links` | `SUPER+Space` | App launcher as a ranked list of 20 apps, one per arcana number. Rank grows with launch count; type to search. Caelestia's launcher moves to `SUPER+SHIFT+Space`. |
+| `p3-calendar` | `SUPER+Y` | Month calendar on a disc of water: Sundays red, Saturdays cyan, a flat lopsided triangle as the cursor, real moon phases, a dot under days with plans. The paper side lists what is coming up with a countdown and the selected day's plans. Plans live in `~/.local/share/persona-rice/calendar.txt` (`2026-11-20 DBMS exam`, `*-12-25 Christmas` for every year); add with `↵`, remove with `Del`. Drawn in code, no art slot. |
 | `p3-power` | `SUPER+SHIFT+Escape` | Power menu: tilted italic word stack with a sliding highlight over a video slot. |
 | Lock screen | | Caelestia's lock, patched: desktop still crossfades into a video slot, corner calendar, password pill, unlock animation. |
 | Login screen | | SDDM theme (`themes/p3/sddm`), optional. |
@@ -59,7 +60,7 @@ themes/p3/
   hypr/look.lua     borders, blur, shadows, the key binds above, autostart
   sddm/             login screen
   wallpapers/       p3-depths.png, p3-moonroom.png (original, generated)
-  fonts/            Saira (SIL Open Font License)
+  fonts/            Saira, Archivo (SIL Open Font License)
   drafts/           earlier and rejected versions of the bar, player, calendar, lock
 shared/             persona-theme (switcher), sync-caelestia.sh, fish greeting hook, hypr autostart
 media/p3/           empty; put your own media here before installing (gitignored)
@@ -81,7 +82,7 @@ networkmanager bluez iw upower power-profiles-daemon brightnessctl
 grim slurp wl-clipboard cliphist gpu-screen-recorder qalculate-gtk   # toolkit items; each is optional
 ```
 
-Fonts not packaged: **Jost** (calendar, menus, lock), from [Google Fonts](https://fonts.google.com/specimen/Jost), into `~/.local/share/fonts/`. Saira is bundled in `themes/p3/fonts/`; copy it there too.
+Fonts not packaged: **Jost** (calendar, menus, lock), from [Google Fonts](https://fonts.google.com/specimen/Jost), into `~/.local/share/fonts/`. Saira (bar) and Archivo (calendar menu; the variable font, used at its widest) are bundled in `themes/p3/fonts/`; copy them there too.
 
 Tested with Hyprland 0.56 (Lua config), Quickshell 0.3.2, caelestia-shell 2.5.0, caelestia-cli 1.1.3 on a 1920x1080 panel at 1.5x scale. The Caelestia patches are tied to that version; if one doesn't fit, the installer says so and Caelestia runs unpatched. The binds in `look.lua` use the Lua API, so the menus need the Lua config (`look.conf` only carries the window look).
 
@@ -150,4 +151,4 @@ Restore files from the backup folder, then delete `~/.local/share/persona-rice`,
 
 ## License
 
-MIT for the code. Saira is under the SIL Open Font License.
+MIT for the code. Saira and Archivo are under the SIL Open Font License.

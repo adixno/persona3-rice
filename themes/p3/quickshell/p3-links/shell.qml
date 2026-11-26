@@ -215,7 +215,7 @@ ShellRoot {
                 shell.shown = false;
             }
             function hideOthers() {
-                Quickshell.execDetached(["sh", "-c", "for m in p3status p3equip p3items p3skills; do hyprctl dispatch \"hl.dsp.global(\\\"$m:hide\\\")\" >/dev/null; done"]);
+                Quickshell.execDetached(["sh", "-c", "for m in p3status p3equip p3items p3skills p3calendar; do hyprctl dispatch \"hl.dsp.global(\\\"$m:hide\\\")\" >/dev/null; done"]);
             }
             function reopen() {
                 hideOthers();

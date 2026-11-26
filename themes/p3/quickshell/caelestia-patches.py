@@ -571,6 +571,63 @@ PATCHES.update({
     ],
 })
 
+# ---- Wi-Fi password prompt: the settings (nexus) network list connects with no password
+# dialog, so a secured network without a saved profile silently fails. Send those to the
+# "Add network" sub-page with the name filled in and the password field focused. ----
+PATCHES.update({
+    "modules/nexus/NexusState.qml": [
+        (
+            "    property bool networkDetailsFromSaved\n",
+            "    property bool networkDetailsFromSaved\n    property string connectSsid\n",
+        ),
+    ],
+    "modules/nexus/common/NetworkList.qml": [
+        (
+            "            if (!modelData.active) {\n"
+            "                NetworkConnection.handleConnect(modelData);\n",
+            "            if (!modelData.active && modelData.isSecure && !/802\\.1X/i.test(modelData.security) && !Nmcli.hasSavedProfile(modelData.ssid)) {\n"
+            "                // no saved profile: ask for the password first\n"
+            "                root.nState.connectSsid = modelData.ssid;\n"
+            "                root.nState.openSubPage(2);\n"
+            "            } else if (!modelData.active) {\n"
+            "                NetworkConnection.handleConnect(modelData);\n",
+        ),
+    ],
+    "modules/nexus/pages/NetworkPage.qml": [
+        (
+            "            onClicked: root.nState.openSubPage(2) // Add network sub-page\n",
+            "            onClicked: {\n"
+            "                root.nState.connectSsid = \"\";\n"
+            "                root.nState.openSubPage(2); // Add network sub-page\n"
+            "            }\n",
+        ),
+    ],
+    "modules/nexus/pages/network/AddNetworkPage.qml": [
+        (
+            "    property bool success: false\n",
+            "    property bool success: false\n"
+            "    property string presetSsid // set when opened from the network list\n"
+            "\n"
+            "    Component.onCompleted: {\n"
+            "        presetSsid = nState.connectSsid;\n"
+            "        nState.connectSsid = \"\";\n"
+            "        if (presetSsid) {\n"
+            "            ssidField.text = presetSsid;\n"
+            "            Qt.callLater(() => passwordField.forceActiveFocus());\n"
+            "        }\n"
+            "    }\n",
+        ),
+        (
+            "    title: Tr.tr(\"Add network\")\n",
+            "    title: presetSsid ? presetSsid : Tr.tr(\"Add network\")\n",
+        ),
+        (
+            "            checked: true\n",
+            "            checked: !root.presetSsid\n",
+        ),
+    ],
+})
+
 for rel, edits in PATCHES.items():
     path = root / rel
     text = path.read_text()

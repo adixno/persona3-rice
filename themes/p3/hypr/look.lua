@@ -41,6 +41,9 @@ hl.bind("SUPER + U", hl.dsp.global("p3items:toggle"))
 -- p3 modes (SKILL screen: cast bundles of loadout settings): SUPER+K, resident too
 hl.bind("SUPER + K", hl.dsp.global("p3skills:toggle"))
 
+-- p3 calendar (month view, moon phases, plans): SUPER+Y, resident too
+hl.bind("SUPER + Y", hl.dsp.global("p3calendar:toggle"))
+
 -- p3 app launcher (SOCIAL LINK): SUPER+Space, resident too. Caelestia's launcher moves to
 -- SUPER+SHIFT+Space (this file loads after binds.lua, so these win while p3 is active)
 hl.unbind("SUPER + Space")
@@ -56,5 +59,6 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("qs -c p3-items -n -d")
     hl.exec_cmd("qs -c p3-skills -n -d")
     hl.exec_cmd("qs -c p3-links -n -d")
+    hl.exec_cmd("qs -c p3-calendar -n -d")
     hl.exec_cmd("sh -c 'sleep 2; qs -c p3-hud -n -d'")
 end)

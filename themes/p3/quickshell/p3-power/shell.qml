@@ -29,7 +29,7 @@ ShellRoot {
     readonly property string media: Quickshell.env("P3_MEDIA") || (Quickshell.env("HOME") + "/.local/share/persona-rice/media/p3")
 
     // only one p3 menu at a time: clear status / equip / items when the power menu opens
-    Component.onCompleted: Quickshell.execDetached(["sh", "-c", "hyprctl dispatch 'hl.dsp.global(\"p3status:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3equip:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3items:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3skills:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3links:hide\")' >/dev/null"])
+    Component.onCompleted: Quickshell.execDetached(["sh", "-c", "hyprctl dispatch 'hl.dsp.global(\"p3status:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3equip:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3items:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3skills:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3links:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3calendar:hide\")' >/dev/null"])
 
     PanelWindow {
         id: win

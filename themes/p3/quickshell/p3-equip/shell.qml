@@ -404,7 +404,7 @@ ShellRoot {
             // only one p3 menu at a time: opening this one hides the others (hyprctl → their
             // "hide" globals, ~10 ms; a qs ipc call would cost ~200 ms each)
             function hideOthers() {
-                Quickshell.execDetached(["sh", "-c", "hyprctl dispatch 'hl.dsp.global(\"p3status:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3items:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3skills:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3links:hide\")' >/dev/null"]);
+                Quickshell.execDetached(["sh", "-c", "hyprctl dispatch 'hl.dsp.global(\"p3status:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3items:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3skills:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3links:hide\")' >/dev/null; hyprctl dispatch 'hl.dsp.global(\"p3calendar:hide\")' >/dev/null"]);
             }
             function reopen() {
                 hideOthers();
